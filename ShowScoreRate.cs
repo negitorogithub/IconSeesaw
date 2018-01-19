@@ -2,12 +2,13 @@
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UniRx;
+using System.Globalization;
 
-public class ShowScore : MonoBehaviour {
+public class ShowScoreRate : MonoBehaviour {
 
 	private Text textAttached;
     public GameObject gameObject2Commit;
-    public CountScoreByItem countScoreByItem;
+    public CountBonusByItem countScoreByItem;
 
     private void Start()
     {
@@ -24,8 +25,8 @@ public class ShowScore : MonoBehaviour {
         textAttached = gameObject.GetComponent<Text>();
 
 
-        countScoreByItem.scoreByTheItem.Subscribe(
-             score => textAttached.text = score.ToString() + "円"
+        countScoreByItem.bonusPointByTheItem.Subscribe(
+             score => textAttached.text = "×" + (1.0 + (score/100)).ToString("F1", CultureInfo.InvariantCulture)
 
             );
 

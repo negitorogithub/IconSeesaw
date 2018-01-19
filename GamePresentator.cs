@@ -13,9 +13,10 @@ public class GamePresentator : MonoBehaviour {
 
     public DataHolder dataHolder;
     public DistanceMeasure distanceMeasure;
-    public CountScoreByItem countScoreByItem;
+    public CalculatePlayerScore calculatePlayerScore;
     public Button levelUpButton;
     public Rigidbody2D player;
+    public LoadRewardMovie loadRewardMovie;
     public static int money2Add;
     public static ReactiveProperty<int> nextCost;
     public static float score2Add;
@@ -24,6 +25,8 @@ public class GamePresentator : MonoBehaviour {
     public static float highScore;
     public static Subject<Unit> retrySender;
     public static bool isPlayerFixed;
+
+    private float scoreRateByReward;
 
     private void Start()
     {
@@ -43,6 +46,7 @@ public class GamePresentator : MonoBehaviour {
 
     private void PrimaryInitialize()
     {
+        scoreRateByReward = 1.0f;
         retrySender = new Subject<Unit>();
         playerLevel = new ReactiveProperty<int>();
         nextCost = new ReactiveProperty<int>();
@@ -56,7 +60,7 @@ public class GamePresentator : MonoBehaviour {
     {
         // データホルダの変換を購読
         isPlayerFixed = true;
-        countScoreByItem?.scoreByTheItem.Subscribe(
+        calculatePlayerScore?.playerScore.Subscribe(
             value => money2Add = (int)(value + Max(score2Add, 0))
             );
         distanceMeasure?.distance.Subscribe(
@@ -90,13 +94,17 @@ public class GamePresentator : MonoBehaviour {
 
     public void ChengeScene2Shop()
     {
+        Pushvalue2DataHolder();
         SceneManager.LoadScene(1);
     }
     
     public void ChangeScene2Game()
     {
+        Pushvalue2DataHolder();
         SceneManager.LoadScene(0);
     }
+
+    public void 
 
     public void LevelUpPlayer()
     {
@@ -109,9 +117,11 @@ public class GamePresentator : MonoBehaviour {
     private void Pushvalue2DataHolder()
     {
         dataHolder?.InvokeUtil(_ => dataHolder.highScore.Value = Max(dataHolder.highScore.Value, score2Add));
-        dataHolder?.InvokeUtil(_ => dataHolder.playerMoney.Value += money2Add);
+        dataHolder?.InvokeUtil(_ => dataHolder.playerMoney.Value +=(int)( money2Add * scoreRateByReward));
+        dataHolder?.InvokeUtil(_ => money2Add = 0);
         dataHolder?.InvokeUtil(_ => dataHolder.playerLevel.Value = playerLevel.Value);
     }
+
 
     
 }
