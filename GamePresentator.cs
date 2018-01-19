@@ -17,6 +17,7 @@ public class GamePresentator : MonoBehaviour {
     public Button levelUpButton;
     public Rigidbody2D player;
     public LoadRewardMovie loadRewardMovie;
+    public Button rewardButton;
     public static int money2Add;
     public static ReactiveProperty<int> nextCost;
     public static float score2Add;
@@ -25,8 +26,10 @@ public class GamePresentator : MonoBehaviour {
     public static float highScore;
     public static Subject<Unit> retrySender;
     public static bool isPlayerFixed;
+    public float rewardAppearPercent; // 0.0f-100.0f
 
     private float scoreRateByReward;
+    
 
     private void Start()
     {
@@ -46,7 +49,7 @@ public class GamePresentator : MonoBehaviour {
 
     private void PrimaryInitialize()
     {
-        scoreRateByReward = 1.0f;
+        scoreRateByReward = 3.0f;
         retrySender = new Subject<Unit>();
         playerLevel = new ReactiveProperty<int>();
         nextCost = new ReactiveProperty<int>();
@@ -55,6 +58,7 @@ public class GamePresentator : MonoBehaviour {
         .Subscribe(
             _ => LevelUpPlayer()
             );
+        
     }
     private void SeconderyInitialize()
     {
@@ -81,7 +85,15 @@ public class GamePresentator : MonoBehaviour {
         dataHolder?.nextCost.Subscribe(
             value => nextCost.Value = value
             );
-        
+        loadRewardMovie?.onVideoCompletedSubject.Subscribe(
+            _ => lotteryIfAppearRewardButton(rewardAppearPercent)
+            );
+        loadRewardMovie?.onVideoCompletedSubject.Subscribe(
+            _ => Debug.Log("VideoLoadedSuccessfully")
+            );
+        rewardButton?.OnClickAsObservable().Subscribe(
+            _ => loadRewardMovie.rewardBasedVideo.Show()
+            );
     }
 
     public void RetryGame()
@@ -104,8 +116,6 @@ public class GamePresentator : MonoBehaviour {
         SceneManager.LoadScene(0);
     }
 
-    public void 
-
     public void LevelUpPlayer()
     {
         dataHolder?.playerMoney?.InvokeUtil(
@@ -114,6 +124,7 @@ public class GamePresentator : MonoBehaviour {
         
         Pushvalue2DataHolder();
     }
+
     private void Pushvalue2DataHolder()
     {
         dataHolder?.InvokeUtil(_ => dataHolder.highScore.Value = Max(dataHolder.highScore.Value, score2Add));
@@ -122,6 +133,18 @@ public class GamePresentator : MonoBehaviour {
         dataHolder?.InvokeUtil(_ => dataHolder.playerLevel.Value = playerLevel.Value);
     }
 
+    private void lotteryIfAppearRewardButton(float rate)
+    {
+        bool doesAppear = ReturnBoolByPercent(rate);
+        if (doesAppear)
+        {
+            rewardButton?.gameObject.SetActive(true);
+        }
+        else
+        {
+            rewardButton?.gameObject.SetActive(false);
+        }
 
+    }
     
 }

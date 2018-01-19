@@ -131,7 +131,7 @@ public class MoveRigidbody2DWithTouch : MonoBehaviour, IPointerDownHandler, IDra
 		if (eventData.pointerId == pointerID) {
             rigidbody2Move.isKinematic = false;
             Vector2 Velocity2Add = new Vector2(recentVelocities.Select(element => element.x).Average(), recentVelocities.Select(element => element.y).Average()) ;
-            Debug.Log(rigidbody2Move.gravityScale);
+
             rigidbody2Move.AddForce ( Velocity2Add * rigidbody2Move.mass * (originRigidbodyGravityScale) /5 , ForceMode2D.Impulse);
 			rigidbody2Move.gravityScale = originalGravityScale;
 			isTouching = false;
