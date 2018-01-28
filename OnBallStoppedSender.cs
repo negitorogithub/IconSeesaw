@@ -50,8 +50,7 @@ public class OnBallStoppedSender : MonoBehaviour
         while (true)
         {
             thisVelocity = Abs(thisRigidbody2D.velocity.x) + Abs(thisRigidbody2D.velocity.y);
-            if ((thisVelocity < 0.01)&(originPosX != transform.position.x)&IsGroundedScript.IsTouching) {
-                thisRigidbody2D.velocity = Vector2.zero;
+            if ((thisVelocity < 0.01)&(originPosX != transform.position.x)&IsGroundedScript.IsTouching) { 
                 sender.OnNext(Unit.Default);
                 Debug.Log("BallStopped");
             }

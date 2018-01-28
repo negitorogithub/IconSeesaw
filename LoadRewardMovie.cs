@@ -7,6 +7,7 @@ using System;
 
 public class LoadRewardMovie : MonoBehaviour
 {
+    public ReactiveProperty<bool> isRewarded;
     public Subject<Unit> onVideoCompletedSubject;
     public RewardBasedVideoAd rewardBasedVideo;
     private void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
@@ -28,6 +29,7 @@ public class LoadRewardMovie : MonoBehaviour
 
     private void PrimaryInitialize()
     {
+        isRewarded = new ReactiveProperty<bool>();
         onVideoCompletedSubject = new Subject<Unit>();
     }
 
@@ -35,7 +37,7 @@ public class LoadRewardMovie : MonoBehaviour
     {
         
         RequestRewardedVideo();
-
+        onVideoCompletedSubject.OnNext(Unit.Default);
     }
     private void RequestRewardedVideo()
     {
@@ -60,9 +62,9 @@ public class LoadRewardMovie : MonoBehaviour
     {
         string type = args.Type;
         double amount = args.Amount;
-        print(
+        Debug.Log(
             "HandleRewardBasedVideoRewarded event received for "
                         + amount.ToString() + " " + type);
-
+        isRewarded.Value = true;
     }
 }

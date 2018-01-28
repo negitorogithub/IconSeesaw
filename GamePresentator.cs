@@ -11,13 +11,16 @@ using UnityEngine.UI;
 
 public class GamePresentator : MonoBehaviour {
 
+    public OnBallStoppedSender onBallStoppedSender;
     public DataHolder dataHolder;
     public DistanceMeasure distanceMeasure;
     public CalculatePlayerScore calculatePlayerScore;
+    public CalculateMoney calculateMoney;
     public Button levelUpButton;
     public Rigidbody2D player;
     public LoadRewardMovie loadRewardMovie;
     public Button rewardButton;
+    public Text highScoreText;
     public static int money2Add;
     public static ReactiveProperty<int> nextCost;
     public static float score2Add;
@@ -28,7 +31,7 @@ public class GamePresentator : MonoBehaviour {
     public static bool isPlayerFixed;
     public float rewardAppearPercent; // 0.0f-100.0f
 
-    private float scoreRateByReward;
+    
     
 
     private void Start()
@@ -49,11 +52,12 @@ public class GamePresentator : MonoBehaviour {
 
     private void PrimaryInitialize()
     {
-        scoreRateByReward = 3.0f;
+        
         retrySender = new Subject<Unit>();
         playerLevel = new ReactiveProperty<int>();
         nextCost = new ReactiveProperty<int>();
         levelUpButton?.OnClickAsObservable()
+        //連打防止
         .ThrottleFirst(TimeSpan.FromSeconds(0.1))
         .Subscribe(
             _ => LevelUpPlayer()
@@ -64,15 +68,20 @@ public class GamePresentator : MonoBehaviour {
     {
         // データホルダの変換を購読
         isPlayerFixed = true;
-        calculatePlayerScore?.playerScore.Subscribe(
-            value => money2Add = (int)(value + Max(score2Add, 0))
+        calculateMoney?.money.Subscribe(
+            value => money2Add = value
             );
-        distanceMeasure?.distance.Subscribe(
+        calculatePlayerScore?.playerScore.Subscribe(
             value => score2Add = value
             );
         dataHolder?.highScore.Subscribe(
-            value => highScore = value
-            );
+            value =>
+            {
+                highScore = value;
+
+                highScoreText.text = "HighScore:"+value.ToString();
+            }
+                );
         dataHolder?.playerMoney.Subscribe(
             value => money = value
             );
@@ -85,6 +94,9 @@ public class GamePresentator : MonoBehaviour {
         dataHolder?.nextCost.Subscribe(
             value => nextCost.Value = value
             );
+
+
+        rewardButton?.gameObject.SetActive(false);
         loadRewardMovie?.onVideoCompletedSubject.Subscribe(
             _ => lotteryIfAppearRewardButton(rewardAppearPercent)
             );
@@ -92,7 +104,10 @@ public class GamePresentator : MonoBehaviour {
             _ => Debug.Log("VideoLoadedSuccessfully")
             );
         rewardButton?.OnClickAsObservable().Subscribe(
-            _ => loadRewardMovie.rewardBasedVideo.Show()
+            _ => {
+                loadRewardMovie.rewardBasedVideo.Show();
+                
+                }
             );
     }
 
@@ -128,7 +143,7 @@ public class GamePresentator : MonoBehaviour {
     private void Pushvalue2DataHolder()
     {
         dataHolder?.InvokeUtil(_ => dataHolder.highScore.Value = Max(dataHolder.highScore.Value, score2Add));
-        dataHolder?.InvokeUtil(_ => dataHolder.playerMoney.Value +=(int)( money2Add * scoreRateByReward));
+        dataHolder?.InvokeUtil(_ => dataHolder.playerMoney.Value += money2Add);
         dataHolder?.InvokeUtil(_ => money2Add = 0);
         dataHolder?.InvokeUtil(_ => dataHolder.playerLevel.Value = playerLevel.Value);
     }
@@ -138,7 +153,9 @@ public class GamePresentator : MonoBehaviour {
         bool doesAppear = ReturnBoolByPercent(rate);
         if (doesAppear)
         {
-            rewardButton?.gameObject.SetActive(true);
+            onBallStoppedSender.sender.Subscribe(
+            _ => rewardButton?.gameObject.SetActive(true)
+            );
         }
         else
         {

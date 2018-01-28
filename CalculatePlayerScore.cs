@@ -1,15 +1,19 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using UniRx;
+using static UnityEngine.Mathf;
 using System.Collections;
 using System;
 
 public class CalculatePlayerScore : MonoBehaviour
 {
-
+    
+    
     public DistanceMeasure distanceMeasure;
-    public CountBonusByItem countBonusByItem;
+    
     public ReactiveProperty<float> playerScore;
+    private float thisDistance;
+    
     private void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
     {
         PrimaryInitialize();
@@ -35,8 +39,18 @@ public class CalculatePlayerScore : MonoBehaviour
     private void SecondaryInitialize()
     {
         distanceMeasure.distance.Subscribe(
-        distance => playerScore.Value = distance * (1 + (countBonusByItem.bonusPointPerItem / 100))
-        );
+        distance =>
+        {
+            thisDistance = distance;
+            Calculate();
+        }
+        
+            );
+    }
+
+    private void Calculate()
+    {
+        playerScore.Value = Max(0, thisDistance);
     }
 
 }
