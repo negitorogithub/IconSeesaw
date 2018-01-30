@@ -8,7 +8,8 @@ public class ShowScoreRate : MonoBehaviour {
 
 	private Text textAttached;
     public GameObject gameObject2Commit;
-    public CountBonusByItem countScoreByItem;
+    public CalculateMoney calculateMoney;
+
 
     private void Start()
     {
@@ -25,8 +26,8 @@ public class ShowScoreRate : MonoBehaviour {
         textAttached = gameObject.GetComponent<Text>();
 
 
-        countScoreByItem.bonusPointByTheItem.Subscribe(
-             score => textAttached.text = "×" + (1.0 + (score/100)).ToString("F1", CultureInfo.InvariantCulture)
+        calculateMoney.scoreRateSum.Subscribe(
+             rateSum => textAttached.text = "×" + rateSum.ToString("F1", CultureInfo.InvariantCulture)
 
             );
 

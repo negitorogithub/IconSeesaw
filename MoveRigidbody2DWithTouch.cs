@@ -17,11 +17,11 @@ public class MoveRigidbody2DWithTouch : MonoBehaviour, IPointerDownHandler, IDra
     public static bool isTouching { get; private set; }
 
 
-    private float originRigidbodyGravityScale;
+    
     private float OriginCameraSize;
     private const int sizeOfVelocityHistory = 3; 
     private List<Vector2> recentVelocities;
-    private float originalGravityScale;
+    private float originGravityScale;
 	private Vector2 lastVelocity;
 	private Vector2 origin;
 	private Vector2 smoothDirection;
@@ -45,14 +45,13 @@ public class MoveRigidbody2DWithTouch : MonoBehaviour, IPointerDownHandler, IDra
 
 	void Initialize () {
         OriginCameraSize = Camera.main.orthographicSize;
-        originalGravityScale = rigidbody2Move.gravityScale;
+        originGravityScale = rigidbody2Move.gravityScale;
         isTouching = false;
         recentVelocities = new List<Vector2>();
         for (int i = 0; i < sizeOfVelocityHistory; i++)
         {
             recentVelocities.Add(Vector2.zero);
         }
-        originRigidbodyGravityScale = rigidbody2Move.gravityScale;
     }
 
 
@@ -132,8 +131,8 @@ public class MoveRigidbody2DWithTouch : MonoBehaviour, IPointerDownHandler, IDra
             rigidbody2Move.isKinematic = false;
             Vector2 Velocity2Add = new Vector2(recentVelocities.Select(element => element.x).Average(), recentVelocities.Select(element => element.y).Average()) ;
 
-            rigidbody2Move.AddForce ( Velocity2Add * rigidbody2Move.mass * (originRigidbodyGravityScale) /5 , ForceMode2D.Impulse);
-			rigidbody2Move.gravityScale = originalGravityScale;
+            rigidbody2Move.AddForce ( Velocity2Add * rigidbody2Move.mass * (originGravityScale) /5 , ForceMode2D.Impulse);
+			rigidbody2Move.gravityScale = originGravityScale;
 			isTouching = false;
             rigidbody2Move.gameObject.layer = LayerName.Moon;
 		}

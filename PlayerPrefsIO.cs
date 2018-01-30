@@ -24,4 +24,8 @@ public class PlayerPrefsIO
     {
         return PlayerPrefs.GetFloat(key.ToString());
     }
+    public static void DeleteAll()
+    {
+        PlayerPrefs.DeleteAll();
+    }
 }

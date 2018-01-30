@@ -12,7 +12,7 @@ public class CalculateMoney : MonoBehaviour
     public CountBonusByItem countBonusByItem;
     [SerializeField]
     private float rewardedScoreRate;// > 1.0f
-    private float scoreRate;
+    public ReactiveProperty<float> scoreRateSum { get; private set; }
     private void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
     {
         SecondaryInitialize();
@@ -26,6 +26,7 @@ public class CalculateMoney : MonoBehaviour
     private void PrimaryInitialize()
     {
         money = new ReactiveProperty<int>();
+        scoreRateSum = new ReactiveProperty<float>();
     }
 
 
@@ -37,27 +38,28 @@ public class CalculateMoney : MonoBehaviour
 
     private void SecondaryInitialize()
     {
-        scoreRate = 1.0f;
+        float scoreRateByReward = 1.0f;
         loadRewardMovie.isRewarded.Subscribe(
         isRewarded =>
         {
             if (isRewarded)
             {
-                scoreRate = rewardedScoreRate;
+                scoreRateByReward = rewardedScoreRate;
             }
             else
             {
-                scoreRate = 1.0f;
+                scoreRateByReward = 1.0f;
             }
-            Calculate();
+            Calculate(scoreRateByReward);
         });
         calculatePlayerScore.playerScore.Subscribe(
-            _ => Calculate()
+            _ => Calculate(scoreRateByReward)
             );
     }
 
-    private void Calculate()
+    private void Calculate(float rewardedScoreRate)
     {
-        money.Value = (int)(calculatePlayerScore.playerScore.Value * ((1 + (countBonusByItem.bonusPointPerItem / 100)) * scoreRate));
+        scoreRateSum.Value = (1 + (countBonusByItem.bonusPointByTheItem.Value / 100)) * rewardedScoreRate;
+        money.Value = (int)(calculatePlayerScore.playerScore.Value * scoreRateSum.Value);
     }
 }

@@ -20,7 +20,9 @@ public class GamePresentator : MonoBehaviour {
     public Rigidbody2D player;
     public LoadRewardMovie loadRewardMovie;
     public Button rewardButton;
+    public Text LevelText;
     public Text highScoreText;
+    public Text NextCostText;
     public static int money2Add;
     public static ReactiveProperty<int> nextCost;
     public static float score2Add;
@@ -79,21 +81,32 @@ public class GamePresentator : MonoBehaviour {
             {
                 highScore = value;
 
-                highScoreText.text = "HighScore:"+value.ToString();
+                highScoreText?.InvokeUtil(highScoreText => highScoreText.text = "HighScore:"+value.ToString());
             }
                 );
         dataHolder?.playerMoney.Subscribe(
             value => money = value
             );
         dataHolder?.playerLevel.Subscribe(
-            value => playerLevel.Value = value
-            );
-        dataHolder?.playerLevel.Subscribe(
-            value => player?.gravityScale.InvokeUtil(_ => player.gravityScale = ((float)value/10))
+            value => {
+                playerLevel.Value = value;
+                if (player != null)
+                {
+                    player.gravityScale = (float)(value / 10 + 1.0);
+                    
+                }
+                LevelText?.InvokeUtil(_ => LevelText.text = "Lv." + value.ToString());
+            }
             );
         dataHolder?.nextCost.Subscribe(
-            value => nextCost.Value = value
-            );
+            value =>
+            {
+                nextCost.Value = value;
+                NextCostText?.InvokeUtil(
+                    _ => NextCostText.text = (value.ToString()) + "pt"
+                    );
+            }
+                );
 
 
         rewardButton?.gameObject.SetActive(false);
@@ -109,6 +122,7 @@ public class GamePresentator : MonoBehaviour {
                 
                 }
             );
+        
     }
 
     public void RetryGame()
@@ -133,11 +147,16 @@ public class GamePresentator : MonoBehaviour {
 
     public void LevelUpPlayer()
     {
-        dataHolder?.playerMoney?.InvokeUtil(
-            _ => dataHolder.playerMoney.Value = dataHolder.playerMoney.Value - dataHolder.nextCost.Value);
-        dataHolder?.playerLevel?.InvokeUtil(_ => dataHolder.playerLevel.Value++);
-        
-        Pushvalue2DataHolder();
+        dataHolder?.InvokeUtil(
+            _ =>
+            {
+                if (dataHolder.playerMoney.Value - dataHolder.nextCost.Value >= 0)
+                {
+                    dataHolder.playerMoney.Value = dataHolder.playerMoney.Value - dataHolder.nextCost.Value;
+                    dataHolder.playerLevel.Value++;
+                }
+            });
+            
     }
 
     private void Pushvalue2DataHolder()

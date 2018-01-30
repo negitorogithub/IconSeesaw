@@ -9,7 +9,6 @@ using System.Collections;
 
 public class DataHolder : MonoBehaviour
 {
-
     public ReactiveProperty<int> playerLevel;
     public ReactiveProperty<int> playerMoney;
     public ReactiveProperty<float> highScore;
@@ -33,7 +32,6 @@ public class DataHolder : MonoBehaviour
 
     private void PrimaryInitialize()
     {
-
         nextCost = new ReactiveProperty<int>();
 
         playerMoney = new ReactiveProperty<int>
@@ -49,9 +47,14 @@ public class DataHolder : MonoBehaviour
             Value = PlayerPrefsIO.GetInt(PLAYER_PREFS_KEY_ENUM.LEVEL_KEY)
         };
         playerLevel.Subscribe(
-            level => PlayerPrefsIO.SaveInt(PLAYER_PREFS_KEY_ENUM.LEVEL_KEY, level)
+            level =>
+            {
+                PlayerPrefsIO.SaveInt(PLAYER_PREFS_KEY_ENUM.LEVEL_KEY, level);
+                SetNextCost(level);
+            }
 
             );
+        Debug.Log("NextCost =" + nextCost.Value);
         highScore = new ReactiveProperty<float>
         {
             Value = PlayerPrefsIO.GetFloat(PLAYER_PREFS_KEY_ENUM.HIGHSCORE_KEY)
@@ -63,10 +66,7 @@ public class DataHolder : MonoBehaviour
     }
     private void SecondaryInitialize()
     {
-        playerLevel.Subscribe(
-            level => SetNextCost(level)
-            );
-        Debug.Log("NextCost =" +nextCost.Value);
+        
     }
 
     public void saveAllData2PlayerPrefs()
@@ -88,11 +88,16 @@ public class DataHolder : MonoBehaviour
         {
             int[] levelUpCosts = LoadMasterData.masterData.costs2LevelUp;
             int lastCostsIndex = levelUpCosts.Length -1;
-            //                               ↓Lv.0時の対策
-            processedNextCost = levelUpCosts[Max(level - 1, 0)];
-            if (lastCostsIndex < Max(level - 1, 0))
+            //                       ↓保険
+            if (lastCostsIndex < Max(level + 1, 0))
             {
                 processedNextCost = levelUpCosts[lastCostsIndex];
+            }
+            else
+            {
+                //                               ↓保険
+                processedNextCost = levelUpCosts[Max(level + 1, 0)];
+
             }
         }
         
