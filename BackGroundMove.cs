@@ -8,6 +8,7 @@ public class BackGroundMove : MonoBehaviour
 
     public Transform transform2Attach;
     private Vector3 thisSize;
+    private float originX;
     private void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
     {
         Initialize();
@@ -22,12 +23,13 @@ public class BackGroundMove : MonoBehaviour
     private void Initialize()
     {
         thisSize = GetComponent<SpriteRenderer>().bounds.size;
+        originX = transform.position.x;
     }
 
     private void Update()
     {
         transform.position = new Vector3(
-            (Mathf.Floor(transform2Attach.position.x / thisSize.x)) * thisSize.x,
+            (Mathf.Floor((transform2Attach.position.x - originX) / thisSize.x)) * thisSize.x,
             transform.position.y,
             0.0f
 
