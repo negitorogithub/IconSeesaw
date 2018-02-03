@@ -57,9 +57,9 @@ public class CalculateMoney : MonoBehaviour
             );
     }
 
-    private void Calculate(float rewardedScoreRate)
+    private void Calculate(float bonusScoreRate)
     {
-        scoreRateSum.Value = (1 + (countBonusByItem.bonusPointByTheItem.Value / 100)) * rewardedScoreRate;
+        scoreRateSum.Value = (1 + (countBonusByItem.bonusPointByTheItem.Value / 100)) * bonusScoreRate;
         money.Value = (int)(calculatePlayerScore.playerScore.Value * scoreRateSum.Value);
     }
 }

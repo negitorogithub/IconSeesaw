@@ -111,7 +111,10 @@ public class GamePresentator : MonoBehaviour {
 
         rewardButton?.gameObject.SetActive(false);
         loadRewardMovie?.onVideoCompletedSubject.Subscribe(
-            _ => lotteryIfAppearRewardButton(rewardAppearPercent)
+            _ =>
+            {
+                lotteryIfAppearRewardButton(rewardAppearPercent);
+            }
             );
         loadRewardMovie?.onVideoCompletedSubject.Subscribe(
             _ => Debug.Log("VideoLoadedSuccessfully")
@@ -119,7 +122,7 @@ public class GamePresentator : MonoBehaviour {
         rewardButton?.OnClickAsObservable().Subscribe(
             _ => {
                 loadRewardMovie.rewardBasedVideo.Show();
-                
+                loadRewardMovie.LoadAd();
                 }
             );
         

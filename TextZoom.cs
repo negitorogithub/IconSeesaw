@@ -9,8 +9,7 @@ public class TextZoom : MonoBehaviour
 {
     public GameObject gameObject2Watch;
     private Text thisText;
-    private int originFontSize;
-
+    private int originSize;
 
     private void Start()
     {
@@ -25,12 +24,12 @@ public class TextZoom : MonoBehaviour
     void Initialize()
     {
         thisText = gameObject.GetComponent<Text>();
-        originFontSize = thisText.fontSize;
-        
-        
+        thisText.fontSize = (thisText.resizeTextMaxSize/ 5) * 3;
+        originSize = thisText.fontSize;
+
         gameObject2Watch.GetComponent<OnBallStoppedSender>().sender.First().Subscribe(
 
-            _ => LeanTween.value(40, 90, 1.0f).setOnUpdate
+            _ => LeanTween.value(thisText.gameObject, thisText.fontSize, thisText.resizeTextMaxSize, 0.6f).setOnUpdate
                 (
                     (float newValue) => { thisText.fontSize = (int)newValue; }
                 )
@@ -43,14 +42,6 @@ public class TextZoom : MonoBehaviour
             _ => ResetFontSize()
             );       
     }
-    private void Zoom()
-    {
-        Debug.Log("ZoomStart");
-        LeanTween.value(54, 80, 5.0f).setOnUpdate
-            (
-                (float newValue) => { thisText.fontSize = (int) newValue; }
-            );
-    }
 
-    private void ResetFontSize() => thisText.fontSize = originFontSize;
+    private void ResetFontSize() => thisText.fontSize = originSize;
 }

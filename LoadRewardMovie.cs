@@ -10,6 +10,8 @@ public class LoadRewardMovie : MonoBehaviour
     public ReactiveProperty<bool> isRewarded;
     public Subject<Unit> onVideoCompletedSubject;
     public RewardBasedVideoAd rewardBasedVideo;
+    private string adUnitId;
+    private AdRequest adRequest;
     private void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
     {
         PrimaryInitialize();
@@ -36,19 +38,20 @@ public class LoadRewardMovie : MonoBehaviour
     private void SecondaryInitialize()
     {
         
-        RequestRewardedVideo();
-        onVideoCompletedSubject.OnNext(Unit.Default);
+        LoadAd();
     }
     private void RequestRewardedVideo()
     {
-        string adUnitId = "ca-app-pub-3940256099942544/5224354917";
+        adUnitId = "ca-app-pub-6418178360564076/1346262531";
         rewardBasedVideo = RewardBasedVideoAd.Instance;
         rewardBasedVideo.OnAdLoaded += HandleRewardBasedVideoLoaded;
         rewardBasedVideo.OnAdRewarded += HandleRewardBasedVideoRewarded;
+    }
 
-        // Create an empty ad request.
+    public void LoadAd()
+    {
+        RequestRewardedVideo();
         AdRequest request = new AdRequest.Builder().Build();
-        // Load the rewarded video ad with the request.
         rewardBasedVideo.LoadAd(request, adUnitId);
     }
 
@@ -66,5 +69,6 @@ public class LoadRewardMovie : MonoBehaviour
             "HandleRewardBasedVideoRewarded event received for "
                         + amount.ToString() + " " + type);
         isRewarded.Value = true;
+        
     }
 }
